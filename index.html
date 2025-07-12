@@ -26,10 +26,12 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            /* --- التحسين: إزالة الوميض الأزرق عند اللمس على الموبايل --- */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* A more modern font stack */
             background-color: var(--background-color);
             display: flex;
             justify-content: center;
@@ -38,8 +40,16 @@
             color: var(--black);
             direction: rtl; /* For Arabic text */
             text-align: right;
+            -webkit-font-smoothing: antialiased; /* Smoother fonts on WebKit */
+            -moz-osx-font-smoothing: grayscale; /* Smoother fonts on Firefox */
         }
 
+        /* --- التحسين: حركة ظهور تدريجي للتطبيق عند التحميل --- */
+        @keyframes fadeInApp {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
         /* App Container - Simulates Phone Screen */
         .app-container {
             width: 100%;
@@ -47,11 +57,12 @@
             height: 100vh;
             background-color: var(--white);
             border: 1px solid var(--border-color);
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
             overflow: hidden; /* Prevent body scroll, let main-content handle it */
             position: relative; /* For fixed bottom nav and modal */
+            animation: fadeInApp 0.5s ease-out forwards;
         }
 
         /* Header */
@@ -61,7 +72,6 @@
             padding: 15px;
             border-bottom: 1px solid var(--border-color);
             background-color: var(--white);
-            /* position: sticky; top: 0; -- Removed for scrolling header */
             z-index: 100;
         }
 
@@ -79,15 +89,20 @@
 
         .app-header .search-bar input {
             width: 100%;
-            padding: 12px 15px 12px 50px; /* Adjust padding for icon */
+            padding: 12px 15px 12px 50px;
             border: 1px solid var(--light-grey);
             border-radius: 8px;
             background-color: var(--background-color);
             font-size: 16px;
             outline: none;
-            text-align: right; /* Text input direction */
-            padding-right: 45px; /* Actual text input */
-            padding-left: 15px; /* For potential clear button */
+            text-align: right;
+            padding-right: 45px;
+            padding-left: 15px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .app-header .search-bar input:focus {
+            border-color: var(--indeed-blue);
+            box-shadow: 0 0 0 3px rgba(37, 87, 167, 0.2);
         }
         .app-header .search-bar input::placeholder {
             color: var(--medium-grey);
@@ -95,7 +110,7 @@
 
         .app-header .search-bar .fa-search {
             position: absolute;
-            right: 15px; /* Position icon on the right for RTL */
+            right: 15px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--medium-grey);
@@ -105,446 +120,271 @@
         /* Main Content - Job Listings */
         .main-content {
             flex-grow: 1;
-            overflow-y: auto; /* This handles scrolling */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             padding: 10px;
-            padding-bottom: 70px; /* Space for fixed bottom nav (60px nav + 10px buffer) */
+            padding-bottom: 70px;
             background-color: var(--background-color);
         }
-        /* Custom scrollbar */
-        .main-content::-webkit-scrollbar {
-            width: 6px;
-        }
-        .main-content::-webkit-scrollbar-track {
-            background: var(--background-color);
-        }
-        .main-content::-webkit-scrollbar-thumb {
-            background: var(--light-grey);
-            border-radius: 3px;
-        }
-        .main-content::-webkit-scrollbar-thumb:hover {
-            background: var(--medium-grey);
-        }
+        .main-content::-webkit-scrollbar { width: 6px; }
+        .main-content::-webkit-scrollbar-track { background: var(--background-color); }
+        .main-content::-webkit-scrollbar-thumb { background: var(--light-grey); border-radius: 3px; }
+        .main-content::-webkit-scrollbar-thumb:hover { background: var(--medium-grey); }
 
+        /* --- التحسين: حركة دخول لبطاقات الوظائف --- */
+        @keyframes cardEnter {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         /* Job Card */
         .job-card {
             background-color: var(--white);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            margin-bottom: 10px;
+            border-radius: 12px; /* Softer radius */
+            margin-bottom: 12px;
             padding: 15px;
             cursor: pointer;
-            transition: box-shadow 0.2s ease, transform 0.2s ease;
+            transition: box-shadow 0.25s ease, transform 0.25s ease;
+            opacity: 0; /* Start invisible for animation */
+            animation: cardEnter 0.4s ease-out forwards;
         }
 
         .job-card:hover {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transform: translateY(-3px);
+        }
+
+        /* --- التحسين: تأثير "ضغط" عند النقر --- */
+        .job-card:active {
+            transform: scale(0.98) translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .job-card .job-title {
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 600; /* Slightly less bold */
             color: var(--indeed-dark-blue);
             margin-bottom: 5px;
             line-height: 1.3;
         }
 
-        .job-card .company-name,
-        .job-card .job-location {
+        .job-card .company-name, .job-card .job-location {
             font-size: 14px;
             color: var(--dark-grey);
             margin-bottom: 3px;
         }
-        .job-card .job-location {
-            margin-bottom: 8px;
-        }
-
+        .job-card .job-location { margin-bottom: 8px; }
         .job-card .salary-estimate {
             font-size: 14px;
             color: var(--medium-grey);
             margin-bottom: 10px;
         }
 
-        /* New: Media within job card */
         .job-card .job-card-media {
             margin-bottom: 10px;
-            border-radius: 6px; /* Slightly smaller than card border-radius */
+            border-radius: 8px;
             overflow: hidden;
             background-color: var(--background-color);
-            height: 0; /* Aspect ratio trick */
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio (for videos/images) */
+            height: 0;
+            padding-bottom: 56.25%;
             position: relative;
         }
-        .job-card .job-card-media img,
-        .job-card .job-card-media video,
-        .job-card .job-card-media iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Images/videos fill container, cropping if necessary */
-            display: block;
+        .job-card .job-card-media img, .job-card .job-card-media video, .job-card .job-card-media iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block;
         }
-
 
         .job-card .job-snippet {
-            font-size: 14px;
-            color: var(--dark-grey);
-            line-height: 1.5;
-            max-height: 4.5em; /* Approximately 3 lines of text */
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 3; /* number of lines to show */
-            -webkit-box-orient: vertical;
+            font-size: 14px; color: var(--dark-grey); line-height: 1.5; max-height: 4.5em; overflow: hidden;
+            text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
         }
-
         .job-card .posted-date {
-            font-size: 12px;
-            color: var(--medium-grey);
-            margin-top: 10px;
-            text-align: left; /* Align date to left for Indeed style */
+            font-size: 12px; color: var(--medium-grey); margin-top: 10px; text-align: left;
         }
 
         /* No Results Message */
         .no-results {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--medium-grey);
-            font-size: 16px;
-            display: none;
+            text-align: center; padding: 40px 20px; color: var(--medium-grey);
+            font-size: 16px; display: none;
         }
-        .no-results.show {
-            display: block;
-        }
+        .no-results.show { display: block; }
 
-        /* Bottom Navigation Bar - Fixed at bottom */
+        /* Bottom Navigation Bar */
         .bottom-nav {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            height: 60px;
-            border-top: 1px solid var(--border-color);
-            background-color: var(--white);
-            position: fixed; /* Changed to fixed */
-            bottom: 0;
-            width: 100%;
-            max-width: 480px; /* Match app container width */
-            z-index: 100;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.05); /* Subtle shadow */
+            display: flex; justify-content: space-around; align-items: center;
+            height: 60px; border-top: 1px solid var(--border-color); background-color: var(--white);
+            position: fixed; bottom: 0; width: 100%; max-width: 480px; z-index: 100;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
         }
 
         .bottom-nav .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: var(--medium-grey);
-            font-size: 12px;
-            transition: color 0.2s ease-in-out;
-            min-width: 70px; /* Ensure even spacing */
-            padding: 5px 0;
+            display: flex; flex-direction: column; align-items: center;
+            text-decoration: none; color: var(--medium-grey); font-size: 12px;
+            min-width: 70px; padding: 5px 0;
+            transition: color 0.2s ease-in-out, transform 0.2s ease;
+        }
+        
+        /* --- التحسين: تأثير ضغط طفيف على أيقونات التنقل --- */
+        .bottom-nav .nav-item:active {
+            transform: translateY(2px);
         }
 
+        /* --- التحسين: حركة تكبير للأيقونة النشطة --- */
         .bottom-nav .nav-item .fa {
             font-size: 24px;
             margin-bottom: 2px;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy effect */
         }
-
+        
         .bottom-nav .nav-item.active {
             color: var(--indeed-blue);
         }
+        
+        .bottom-nav .nav-item.active .fa {
+            transform: scale(1.15);
+        }
 
-        /* Modal (Pop-up) Styling - Reusable for both modals */
+        /* --- التحسين: حركة أكثر سلاسة للنافذة المنبثقة --- */
         .modal {
-            display: flex;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.6);
-            justify-content: center;
-            align-items: flex-end; /* Start from bottom for a slide-up effect */
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            display: flex; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.6);
+            justify-content: center; align-items: flex-end;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1), visibility 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        .modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        .modal.active .modal-content {
-            transform: translateY(0);
-        }
+        .modal.active { opacity: 1; visibility: visible; }
+        .modal.active .modal-content { transform: translateY(0); }
 
         .modal-content {
-            background-color: var(--white);
-            margin: 0;
-            padding: 20px;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            width: 100%;
-            max-width: 480px; /* Match app container width */
-            position: relative;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
-            transform: translateY(100%); /* Start off-screen */
-            transition: transform 0.3s ease;
-            max-height: 90vh; /* Limit modal height */
-            overflow-y: auto; /* Scrollable content */
-            -webkit-overflow-scrolling: touch;
+            background-color: var(--white); margin: 0; padding: 20px;
+            border-top-left-radius: 16px; border-top-right-radius: 16px;
+            width: 100%; max-width: 480px; position: relative;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1); /* Smoother easing */
+            max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
         }
-        /* Custom scrollbar for modal */
-        .modal-content::-webkit-scrollbar {
-            width: 6px;
-        }
-        .modal-content::-webkit-scrollbar-track {
-            background: var(--white);
-        }
-        .modal-content::-webkit-scrollbar-thumb {
-            background: var(--light-grey);
-            border-radius: 3px;
-        }
-        .modal-content::-webkit-scrollbar-thumb:hover {
-            background: var(--medium-grey);
-        }
+        .modal-content::-webkit-scrollbar { width: 6px; }
+        .modal-content::-webkit-scrollbar-track { background: var(--white); }
+        .modal-content::-webkit-scrollbar-thumb { background: var(--light-grey); border-radius: 3px; }
+        .modal-content::-webkit-scrollbar-thumb:hover { background: var(--medium-grey); }
 
         .close-button {
-            color: var(--medium-grey);
-            position: absolute;
-            left: 15px; /* Position close button on the left for RTL */
-            top: 15px;
-            font-size: 32px;
-            font-weight: normal;
-            cursor: pointer;
-            transition: color 0.2s ease;
+            color: var(--medium-grey); position: absolute; left: 15px; top: 15px;
+            font-size: 32px; font-weight: normal; cursor: pointer;
+            transition: color 0.2s ease, transform 0.2s ease;
         }
-        .close-button:hover,
-        .close-button:focus {
-            color: var(--dark-grey);
-            text-decoration: none;
-            cursor: pointer;
-        }
+        .close-button:hover, .close-button:focus { color: var(--dark-grey); transform: scale(1.1); }
+        .close-button:active { transform: scale(0.95); }
 
-        .modal-header {
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-            text-align: right;
-        }
-
-        .modal-header h2 {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--indeed-dark-blue);
-            margin-bottom: 5px;
-        }
-
-        .modal-header p {
-            font-size: 15px;
-            color: var(--dark-grey);
-            margin-bottom: 3px;
-        }
-        .modal-header .modal-salary, .modal-header .modal-date {
-            font-size: 13px;
-            color: var(--medium-grey);
-        }
-
+        .modal-header { padding-bottom: 15px; margin-bottom: 15px; text-align: right; }
+        .modal-header h2 { font-size: 24px; font-weight: bold; color: var(--indeed-dark-blue); margin-bottom: 5px; }
+        .modal-header p { font-size: 15px; color: var(--dark-grey); margin-bottom: 3px; }
+        .modal-header .modal-salary, .modal-header .modal-date { font-size: 13px; color: var(--medium-grey); }
 
         .modal-body .modal-media {
-            margin-bottom: 20px;
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: var(--background-color);
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
+            margin-bottom: 20px; border-radius: 8px; overflow: hidden; background-color: var(--background-color);
+            position: relative; padding-bottom: 56.25%; height: 0;
         }
-        .modal-body .modal-media img,
-        .modal-body .modal-media video,
-        .modal-body .modal-media iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* Maintain aspect ratio */
-            display: block;
+        .modal-body .modal-media img, .modal-body .modal-media video, .modal-body .modal-media iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block;
         }
-        .modal-body .modal-media video {
-            object-fit: cover; /* Videos might look better covering */
-        }
-
-        .modal-body h3 {
-            font-size: 18px;
-            color: var(--black);
-            margin-bottom: 10px;
-            margin-top: 20px;
-        }
-        .modal-body ul {
-            list-style: inside;
-            padding-right: 15px; /* Indent for RTL list */
-            margin-bottom: 15px;
-        }
-        .modal-body ul li {
-            font-size: 15px;
-            line-height: 1.6;
-            margin-bottom: 5px;
-            color: var(--dark-grey);
-        }
-        .modal-body p {
-            font-size: 15px;
-            line-height: 1.6;
-            margin-bottom: 15px;
-            color: var(--dark-grey);
-        }
+        .modal-body .modal-media video { object-fit: cover; }
+        .modal-body h3 { font-size: 18px; color: var(--black); margin-bottom: 10px; margin-top: 20px; }
+        .modal-body ul { list-style: inside; padding-right: 15px; margin-bottom: 15px; }
+        .modal-body ul li { font-size: 15px; line-height: 1.6; margin-bottom: 5px; color: var(--dark-grey); }
+        .modal-body p { font-size: 15px; line-height: 1.6; margin-bottom: 15px; color: var(--dark-grey); }
 
         .modal-footer {
-            padding-top: 15px;
-            border-top: 1px solid var(--border-color);
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding-top: 15px; border-top: 1px solid var(--border-color); margin-top: 20px;
+            display: flex; justify-content: space-between; align-items: center;
         }
+        
+        /* --- التحسين: تأثيرات أفضل للأزرار --- */
         .apply-button {
-            display: block;
-            width: 100%;
-            padding: 14px 20px;
-            background-color: var(--indeed-blue);
-            color: var(--white);
-            text-align: center;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 17px;
-            font-weight: bold;
-            transition: background-color 0.2s ease;
-        }
-        .apply-button:hover {
-            background-color: var(--indeed-dark-blue);
-        }
-        .modal-footer .save-job-button {
-            background: none;
+            display: block; width: 100%; padding: 14px 20px; background-color: var(--indeed-blue); color: var(--white);
+            text-align: center; text-decoration: none; border-radius: 8px; font-size: 17px; font-weight: bold;
             border: none;
-            color: var(--indeed-blue);
-            font-size: 16px;
-            cursor: pointer;
-            padding: 10px;
-            margin-left: 10px; /* Space for RTL */
-            transition: color 0.2s ease;
+            transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
         }
-        .modal-footer .save-job-button:hover {
-            color: var(--indeed-dark-blue);
+        .apply-button:hover { background-color: var(--indeed-dark-blue); }
+        .apply-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 0 10px rgba(37, 87, 167, 0.4);
         }
 
+        .modal-footer .save-job-button {
+            background: none; border: none; color: var(--indeed-blue); font-size: 16px;
+            cursor: pointer; padding: 10px; margin-left: 10px;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+        .modal-footer .save-job-button:hover { color: var(--indeed-dark-blue); }
+        .modal-footer .save-job-button:active { transform: scale(0.9); }
+
         /* Post Job Modal specific styles */
-        .post-job-form label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: var(--dark-grey);
+        .post-job-form label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--dark-grey); }
+        .post-job-form input[type="text"], .post-job-form input[type="tel"], .post-job-form textarea {
+            width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--light-grey);
+            border-radius: 8px; font-size: 16px; outline: none; direction: rtl; text-align: right;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        .post-job-form input[type="text"],
-        .post-job-form input[type="tel"],
-        .post-job-form textarea {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid var(--light-grey);
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-            direction: rtl; /* Ensure text input direction for Arabic */
-            text-align: right;
+        .post-job-form input:focus, .post-job-form textarea:focus {
+            border-color: var(--indeed-blue);
+            box-shadow: 0 0 0 3px rgba(37, 87, 167, 0.2);
         }
-        .post-job-form textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
+        .post-job-form textarea { resize: vertical; min-height: 100px; }
         .post-job-form button[type="submit"] {
-            width: 100%;
-            padding: 14px 20px;
-            background-color: var(--indeed-blue);
-            color: var(--white);
-            text-align: center;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 17px;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
+            width: 100%; padding: 14px 20px; background-color: var(--indeed-blue); color: var(--white);
+            text-align: center; text-decoration: none; border-radius: 8px; font-size: 17px;
+            font-weight: bold; border: none; cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
         }
-        .post-job-form button[type="submit"]:hover {
-            background-color: var(--indeed-dark-blue);
+        .post-job-form button[type="submit"]:hover { background-color: var(--indeed-dark-blue); }
+        .post-job-form button[type="submit"]:active {
+            transform: scale(0.98);
+            box-shadow: 0 0 10px rgba(37, 87, 167, 0.4);
         }
 
         /* Message/Alert styling */
         .message {
-            padding: 10px 15px;
-            margin-top: 15px;
-            border-radius: 8px;
-            font-size: 14px;
-            text-align: center;
-            display: none;
+            padding: 10px 15px; margin-top: 15px; border-radius: 8px; font-size: 14px;
+            text-align: center; display: none;
         }
-        .message.success {
-            background-color: #d4edda;
-            color: var(--success-green);
-            border: 1px solid #c3e6cb;
-        }
-        .message.error {
-            background-color: #f8d7da;
-            color: var(--error-red);
-            border: 1px solid #f5c6cb;
-        }
-        .message.show {
-            display: block;
-        }
-
+        .message.success { background-color: #d4edda; color: var(--success-green); border: 1px solid #c3e6cb; }
+        .message.error { background-color: #f8d7da; color: var(--error-red); border: 1px solid #f5c6cb; }
+        .message.show { display: block; }
 
         /* Responsive adjustments */
         @media (max-width: 480px) {
-            body {
-                align-items: flex-start; /* Remove vertical centering on small screens */
-            }
-            .app-container {
-                height: 100vh;
-                border: none;
-                box-shadow: none;
-            }
-            .modal {
-                align-items: flex-end; /* Always slide up from bottom */
-            }
+            body { align-items: flex-start; }
+            .app-container { height: 100vh; border: none; box-shadow: none; }
+            .modal { align-items: flex-end; }
             .modal-content {
                 width: 100%;
-                border-radius: 0;
+                border-top-left-radius: 12px;
+                border-top-right-radius: 12px;
                 padding: 15px;
             }
-            .close-button {
-                font-size: 28px;
-            }
-            .bottom-nav {
-                max-width: 100%; /* Ensure it spans full width on small screens */
-            }
+            .close-button { font-size: 28px; }
+            .bottom-nav { max-width: 100%; }
         }
         @media (max-height: 600px) {
-            .app-container {
-                height: 100vh;
-            }
-            .modal-content {
-                max-height: 95vh;
-            }
+            .app-container { height: 100vh; }
+            .modal-content { max-height: 95vh; }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
         <header class="app-header">
-            <div class="logo">EZIDIJOBS</div>
+            <div class="logo">ezidiJobs</div>
             <div class="search-bar">
                 <input type="text" id="searchInput" placeholder="شوغلكي بنفيس">
                 <i class="fas fa-search"></i>
@@ -596,8 +436,8 @@
                     <p id="modalDescription"></p>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="modalApplyLink" target="_blank" class="apply-button">قدم الآن</a>
                     <button class="save-job-button"><i class="far fa-star"></i> حفظ</button>
+                    <a href="#" id="modalApplyLink" target="_blank" class="apply-button">قدم الآن</a>
                 </div>
             </div>
         </div>
@@ -614,18 +454,13 @@
                     <form id="postJobForm" class="post-job-form">
                         <label for="postJobName">اسمك:</label>
                         <input type="text" id="postJobName" name="name" required>
-
                         <label for="postJobExperience">الخبرة المطلوبة (سنوات):</label>
                         <input type="text" id="postJobExperience" name="experience" placeholder="مثال: 2-3 سنوات، يفضل الخبرة السابقة" required>
-
                         <label for="postJobPhone">رقم الهاتف للتواصل:</label>
                         <input type="tel" id="postJobPhone" name="phone" placeholder="مثال: 07701234567" required>
-
                         <label for="postJobDescription">وصف الوظيفة:</label>
                         <textarea id="postJobDescription" name="description" rows="6" placeholder="اكتب وصفاً مفصلاً للوظيفة، بما في ذلك المسمى الوظيفي، المهام، المؤهلات، والموقع إن أمكن." required></textarea>
-                        
                         <div id="postJobMessage" class="message"></div>
-
                         <button type="submit">إرسال الوظيفة</button>
                     </form>
                 </div>
@@ -640,43 +475,36 @@
         const closeJobDetailsModal = document.getElementById('closeJobDetailsModal');
         const noResultsMessage = document.getElementById('noResultsMessage');
 
-        // New elements for Post Job Modal
         const postJobNavItem = document.getElementById('postJobNavItem');
         const postJobModal = document.getElementById('postJobModal');
         const closePostJobModal = document.getElementById('closePostJobModal');
         const postJobForm = document.getElementById('postJobForm');
         const postJobMessage = document.getElementById('postJobMessage');
 
-        // New elements for Navigation
         const homeNavItem = document.getElementById('homeNavItem');
         const searchNavButton = document.getElementById('searchNavButton');
         const contactNavButton = document.getElementById('contactNavButton');
         const navItems = document.querySelectorAll('.bottom-nav .nav-item');
 
-        let allJobs = []; // To store all fetched job data
+        let allJobs = []; 
 
-        // Telegram Bot Configuration (Security Warning: Not recommended for production)
         const TELEGRAM_BOT_TOKEN = '6618648466:AAFGGTIx055y0eCRvq_z3ABqchHfLsqD0M4';
         const TELEGRAM_CHAT_ID = '6431271423';
 
-        // Function to fetch job data from jobs.json
         async function fetchJobs() {
             try {
-                const response = await fetch('jobs.json');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                const response = await fetch('jobs.json?v=' + new Date().getTime()); // Prevent caching
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 allJobs = await response.json();
-                renderJobs(allJobs); // Initial render
+                renderJobs(allJobs);
             } catch (error) {
                 console.error('Error fetching job data:', error);
                 jobListings.innerHTML = '<p style="text-align: center; color: var(--medium-grey); padding: 20px;">عذراً، حدث خطأ أثناء تحميل الوظائف.</p>';
             }
         }
 
-        // Function to render job cards
         function renderJobs(jobsToRender) {
-            jobListings.innerHTML = ''; // Clear current listings
+            jobListings.innerHTML = ''; 
             noResultsMessage.classList.remove('show');
 
             if (jobsToRender.length === 0) {
@@ -684,45 +512,34 @@
                 return;
             }
 
-            jobsToRender.forEach(job => {
+            // --- التحسين: استخدام index لعمل حركة متدرجة ---
+            jobsToRender.forEach((job, index) => {
                 const jobCard = document.createElement('div');
                 jobCard.classList.add('job-card');
-                jobCard.dataset.jobId = job.id; // Store job ID for modal
+                jobCard.dataset.jobId = job.id; 
+                // --- التحسين: إضافة تأخير للحركة بناءً على ترتيب البطاقة ---
+                jobCard.style.animationDelay = `${index * 60}ms`;
 
                 const snippet = job.description.substring(0, 150) + (job.description.length > 150 ? '...' : '');
 
                 let mediaHtml = '';
                 if (job.mediaUrl) {
                     if (job.mediaType === 'صورة') {
-                        mediaHtml = `
-                            <div class="job-card-media">
-                                <img src="${job.mediaUrl}" alt="صورة لوظيفة ${job.title}">
-                            </div>
-                        `;
+                        mediaHtml = `<div class="job-card-media"><img src="${job.mediaUrl}" alt="صورة لوظيفة ${job.title}"></div>`;
                     } else if (job.mediaType === 'فيديو') {
-                        let videoSrcForEmbed = job.mediaUrl;
                         let videoTag = '';
-                        // Check if it's a YouTube URL and extract embeddable ID
-                        if (videoSrcForEmbed.includes('youtube.com') || videoSrcForEmbed.includes('youtu.be')) {
-                            let videoId = '';
+                        if (job.mediaUrl.includes('youtube.com') || job.mediaUrl.includes('youtu.be')) {
                             const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-                            const match = videoSrcForEmbed.match(youtubeRegex);
+                            const match = job.mediaUrl.match(youtubeRegex);
                             if (match && match[1]) {
-                                videoId = match[1];
-                                videoSrcForEmbed = `https://www.youtube.com/embed/${videoId}?controls=0&modestbranding=1&rel=0`; // No controls/branding for cleaner look in card
+                                const videoSrcForEmbed = `https://www.youtube.com/embed/${match[1]}?controls=0&modestbranding=1&rel=0`;
                                 videoTag = `<iframe src="${videoSrcForEmbed}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
                             }
                         } else {
-                            // Assume it's a direct video link, no controls in preview
-                            videoTag = `<video src="${videoSrcForEmbed}" playsinline muted loop></video>`; // Autoplay muted loop for preview
+                            videoTag = `<video src="${job.mediaUrl}" playsinline muted loop></video>`;
                         }
-
                         if (videoTag) {
-                            mediaHtml = `
-                                <div class="job-card-media">
-                                    ${videoTag}
-                                </div>
-                            `;
+                            mediaHtml = `<div class="job-card-media">${videoTag}</div>`;
                         }
                     }
                 }
@@ -732,7 +549,7 @@
                     <div class="company-name">${job.company}</div>
                     <div class="job-location">${job.location}</div>
                     ${job.salary ? `<div class="salary-estimate"><i class="fas fa-money-bill-wave"></i> ${job.salary}</div>` : ''}
-                    ${mediaHtml} <!-- Media is now included here -->
+                    ${mediaHtml}
                     <div class="job-snippet">${snippet}</div>
                     <div class="posted-date">${timeAgo(job.postedDate)}</div>
                 `;
@@ -740,28 +557,24 @@
             });
         }
 
-        // Utility function to format date
         function timeAgo(dateString) {
             const now = new Date();
             const postedDate = new Date(dateString);
             const seconds = Math.floor((now - postedDate) / 1000);
-
-            if (seconds < 60) return `${seconds} ثوانٍ مضت`;
+            if (seconds < 60) return `منذ ${Math.round(seconds)} ثوان`;
             const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return `${minutes} دقيقة مضت`;
+            if (minutes < 60) return `منذ ${minutes} دقيقة`;
             const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `${hours} ساعة مضت`;
+            if (hours < 24) return `منذ ${hours} ساعة`;
             const days = Math.floor(hours / 24);
-            if (days < 30) return `${days} يوم مضى`;
+            if (days < 30) return `منذ ${days} يوم`;
             const months = Math.floor(days / 30);
-            if (months < 12) return `${months} شهر مضى`;
-            const years = Math.floor(months / 12);
-            return `${years} سنة مضت`;
+            if (months < 12) return `منذ ${months} شهر`;
+            return `منذ ${Math.floor(months / 12)} سنة`;
         }
 
-        // Search functionality
         searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
+            const searchTerm = e.target.value.toLowerCase().trim();
             const filteredJobs = allJobs.filter(job =>
                 job.title.toLowerCase().includes(searchTerm) ||
                 job.company.toLowerCase().includes(searchTerm) ||
@@ -771,15 +584,32 @@
             renderJobs(filteredJobs);
         });
 
-        // Function to set active nav item
         function setActiveNavItem(activeItem) {
             navItems.forEach(item => item.classList.remove('active'));
             if (activeItem) {
                 activeItem.classList.add('active');
             }
         }
+        
+        function openModal(modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
 
-        // --- Job Details Modal Functionality ---
+        function closeModal(modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // Restore background scroll
+
+            // Stop any playing video when modal closes
+            const modalVideo = modal.querySelector('video, iframe');
+            if (modalVideo && typeof modalVideo.pause === 'function') {
+                modalVideo.pause();
+            } else if (modalVideo && modalVideo.tagName === 'IFRAME') {
+                const iframeSrc = modalVideo.src;
+                modalVideo.src = iframeSrc.split('?')[0]; 
+            }
+        }
+
         jobListings.addEventListener('click', (e) => {
             const jobCardElement = e.target.closest('.job-card');
             if (jobCardElement) {
@@ -795,7 +625,6 @@
                     document.getElementById('modalDescription').textContent = job.description;
                     document.getElementById('modalApplyLink').href = job.applyLink;
 
-                    // Handle Requirements list
                     const modalRequirements = document.getElementById('modalRequirements');
                     const modalRequirementsTitle = document.getElementById('modalRequirementsTitle');
                     modalRequirements.innerHTML = '';
@@ -812,181 +641,116 @@
                         modalRequirements.style.display = 'none';
                     }
 
-                    // Handle Media (Image/Video) for the modal
                     const modalMedia = document.getElementById('modalMedia');
-                    modalMedia.innerHTML = ''; // Clear previous media
-                    modalMedia.style.display = 'none'; // Hide by default
+                    modalMedia.innerHTML = ''; 
+                    modalMedia.style.display = 'none';
 
                     if (job.mediaUrl) {
                         modalMedia.style.display = 'block';
                         if (job.mediaType === 'صورة') {
-                            const img = document.createElement('img');
-                            img.src = job.mediaUrl;
-                            img.alt = `صورة لوظيفة ${job.title}`;
-                            modalMedia.appendChild(img);
+                            modalMedia.innerHTML = `<img src="${job.mediaUrl}" alt="صورة لوظيفة ${job.title}">`;
                         } else if (job.mediaType === 'فيديو') {
                             if (job.mediaUrl.includes('youtube.com') || job.mediaUrl.includes('youtu.be')) {
-                                // Extract YouTube video ID
                                 let videoId = '';
                                 const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
                                 const match = job.mediaUrl.match(youtubeRegex);
                                 if (match && match[1]) {
-                                    videoId = match[1];
-                                }
-                                
-                                if (videoId) {
-                                    const iframe = document.createElement('iframe');
-                                    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=0`; // Added autoplay=0
-                                    iframe.setAttribute('frameborder', '0');
-                                    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-                                    iframe.setAttribute('allowfullscreen', '');
-                                    modalMedia.appendChild(iframe);
+                                    modalMedia.innerHTML = `<iframe src="https://www.youtube.com/embed/${match[1]}?autoplay=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
                                 }
                             } else {
-                                const video = document.createElement('video');
-                                video.src = job.mediaUrl;
-                                video.setAttribute('controls', '');
-                                modalMedia.appendChild(video);
+                                modalMedia.innerHTML = `<video src="${job.mediaUrl}" controls></video>`;
                             }
                         }
                     }
-
-                    jobDetailsModal.classList.add('active');
+                    openModal(jobDetailsModal);
                 }
             }
         });
 
-        closeJobDetailsModal.addEventListener('click', () => {
-            jobDetailsModal.classList.remove('active');
-            // Stop any playing video when modal closes
-            const modalVideo = document.querySelector('#modalMedia video, #modalMedia iframe');
-            if (modalVideo && typeof modalVideo.pause === 'function') {
-                modalVideo.pause();
-            } else if (modalVideo && modalVideo.tagName === 'IFRAME') {
-                // For iframes (like YouTube), resetting src stops playback
-                const iframeSrc = modalVideo.src;
-                modalVideo.src = iframeSrc.split('?')[0]; // Remove query params to ensure reset
-            }
-        });
-
+        closeJobDetailsModal.addEventListener('click', () => closeModal(jobDetailsModal));
         jobDetailsModal.addEventListener('click', (e) => {
-            if (e.target === jobDetailsModal) { // Only close if clicking on the backdrop, not content
-                closeJobDetailsModal.click(); // Trigger the close button's click event
-            }
+            if (e.target === jobDetailsModal) closeModal(jobDetailsModal);
         });
 
-        // --- Post Job Modal Functionality ---
         postJobNavItem.addEventListener('click', (e) => {
-            e.preventDefault(); // Prevent default link behavior
-            postJobModal.classList.add('active');
-            setActiveNavItem(postJobNavItem); // Set 'نشر وظيفة' as active
-            postJobMessage.classList.remove('show', 'success', 'error'); // Clear previous messages
-            postJobForm.reset(); // Clear form on open
+            e.preventDefault(); 
+            openModal(postJobModal);
+            setActiveNavItem(postJobNavItem); 
+            postJobMessage.classList.remove('show', 'success', 'error');
+            postJobForm.reset(); 
         });
 
         closePostJobModal.addEventListener('click', () => {
-            postJobModal.classList.remove('active');
-            setActiveNavItem(homeNavItem); // Revert to 'الرئيسية' as active
+            closeModal(postJobModal);
+            setActiveNavItem(homeNavItem); 
         });
-
         postJobModal.addEventListener('click', (e) => {
-            if (e.target === postJobModal) {
-                closePostJobModal.click();
-            }
+            if (e.target === postJobModal) closeModal(postJobModal);
         });
 
         postJobForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Prevent default form submission
-
-            const name = document.getElementById('postJobName').value;
-            const experience = document.getElementById('postJobExperience').value;
-            const phone = document.getElementById('postJobPhone').value;
-            const description = document.getElementById('postJobDescription').value;
-
+            e.preventDefault(); 
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'جار الإرسال...';
+            
+            const formData = new FormData(e.target);
             const messageText = `
-                📢 *وظيفة جديدة مقترحة!* 📢
+📢 *وظيفة جديدة مقترحة!* 📢
 
-                *من:* ${name}
-                *الخبرة المطلوبة:* ${experience}
-                *رقم الهاتف:* ${phone}
-
-                *الوصف الوظيفي:*
-                ${description}
-
-                ---
-                تاريخ الإرسال: ${new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-            `;
+*من:* ${formData.get('name')}
+*الخبرة المطلوبة:* ${formData.get('experience')}
+*رقم الهاتف:* \`${formData.get('phone')}\`
+*الوصف الوظيفي:*
+${formData.get('description')}
+---
+تاريخ الإرسال: ${new Date().toLocaleString('ar-EG')}`;
 
             const apiUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-            const params = new URLSearchParams({
-                chat_id: TELEGRAM_CHAT_ID,
-                text: messageText,
-                parse_mode: 'Markdown' // Use Markdown for formatting
-            });
+            const params = new URLSearchParams({ chat_id: TELEGRAM_CHAT_ID, text: messageText, parse_mode: 'Markdown' });
 
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: params.toString()
-                });
-
+                const response = await fetch(apiUrl, { method: 'POST', body: params });
                 const data = await response.json();
-
                 if (data.ok) {
                     postJobMessage.textContent = 'تم إرسال الوظيفة بنجاح! شكراً لك.';
-                    postJobMessage.classList.remove('error');
-                    postJobMessage.classList.add('success', 'show');
-                    postJobForm.reset(); // Clear form fields
+                    postJobMessage.className = 'message success show';
+                    postJobForm.reset();
                     setTimeout(() => {
-                        postJobModal.classList.remove('active');
-                        setActiveNavItem(homeNavItem); // Revert to 'الرئيسية'
-                        postJobMessage.classList.remove('show');
-                    }, 3000); // Close modal after 3 seconds
+                        closeModal(postJobModal);
+                        setActiveNavItem(homeNavItem);
+                    }, 3000);
                 } else {
-                    postJobMessage.textContent = `حدث خطأ: ${data.description || 'فشل في الإرسال.'}`;
-                    postJobMessage.classList.remove('success');
-                    postJobMessage.classList.add('error', 'show');
+                    throw new Error(data.description || 'فشل في الإرسال.');
                 }
             } catch (error) {
                 console.error('Error sending message to Telegram:', error);
                 postJobMessage.textContent = 'حدث خطأ في الاتصال. يرجى المحاولة لاحقاً.';
-                postJobMessage.classList.remove('success');
-                postJobMessage.classList.add('error', 'show');
+                postJobMessage.className = 'message error show';
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'إرسال الوظيفة';
             }
         });
 
-        // --- Bottom Navigation Functionality ---
         homeNavItem.addEventListener('click', (e) => {
             e.preventDefault();
             setActiveNavItem(homeNavItem);
-            // Optionally, scroll to top of job listings
             jobListings.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         searchNavButton.addEventListener('click', (e) => {
             e.preventDefault();
-            // Don't change active nav item as search is part of current view (main)
-            searchInput.focus(); // Focus on the search input field
-            // Scroll to the header if it's off-screen
+            setActiveNavItem(searchNavButton); // Set it as active
+            searchInput.focus(); 
             document.querySelector('.app-header').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
-        // For contactNavButton, the href handles navigation, but we can prevent default
-        // to ensure active state is removed before leaving.
-        contactNavButton.addEventListener('click', (e) => {
-            // e.preventDefault(); // If you want to handle navigation manually
-            // window.location.href = 'Chat.html'; // Then use this
-            navItems.forEach(item => item.classList.remove('active')); // Remove active from all
-            contactNavButton.classList.add('active'); // Set active for a brief moment before navigation
-            // The browser handles navigation via href, so no need for JS navigation unless specific logic is needed.
+        contactNavButton.addEventListener('click', () => {
+             setActiveNavItem(contactNavButton);
         });
 
-
-        // Initial fetch of jobs when the page loads
         document.addEventListener('DOMContentLoaded', fetchJobs);
     </script>
 </body>
-</html>
+</html>  
